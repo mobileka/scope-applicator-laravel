@@ -2,21 +2,15 @@
 [![Code Climate](https://codeclimate.com/github/mobileka/scope-applicator-laravel.svg)](https://codeclimate.com/github/mobileka/scope-applicator-laravel)
 [![Coverage Status](https://coveralls.io/repos/mobileka/scope-applicator-laravel/badge.svg?branch=master)](https://coveralls.io/r/mobileka/scope-applicator-laravel?branch=master)
 
-ScopeApplicator brings an elegant way to sort and filter data to your Laravel projects.
+*If you're looking for a version which works with Laravel 4.x.x and 5.0.x, click [here](https://github.com/mobileka/scope-applicator-laravel/tree/laravel_4_and_5.0).*
+
+[ScopeApplicator](https://github.com/mobileka/scope-applicator) brings an elegant way of sorting and filtering data to your Laravel projects.
 
 - [Overview](#overview)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage (with Models)](#usage-with-models)
-- [Configuration options](#configuration-options)
-    - [Alias](#alias)
-    - [Type](#type)
-    - [Default](#default)
-    - [Allow Empty](#allow-empty)
-    - [Keys (experimental)](#keys-experimental)
 - [A better usage scenario (with Repositories)](#a-better-usage-scenario-with-repositories)
-- [Other ways to use this trait](#other-ways-to-use-this-trait)
-- [Credits](#credits)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -34,13 +28,11 @@ ScopeApplicator is an easy and logical way to achieve something like this:
 
 ## Requirements
 
-— php >= 5.4
-
-Tested with Laravel 4 and 5 but can be used with other versions or even with other frameworks / PHP projects.
+Laravel 5.1.x
 
 ## Installation
 
-`composer require mobileka/scope-applicator-laravel 1.0.*`
+`composer require mobileka/scope-applicator-laravel 1.1.*`
 
 ## Usage (with Models)
 
@@ -151,117 +143,7 @@ class PostController extends Controller
 ```
 — That's it! Now you can visit `/posts?author_id=x` and check the result.
 
-`alias` is only one of the many available scope configuration options. These are described in the next chapter.
-
-## Configuration options
-
-Here's a list of all configuration options available:
-
-#### Alias
-
-Sometimes we don't want our users to see the actual scope name. Alias is a key that maps a URL query parameter to a scope name.
-
-Example:
-
-```php
-public $scopes = [
-    'orderByTitle' => ['alias' => 'order_by_title']
-];
-```
-
-`/posts?order_by_title` – an `orderByTitle` scope will be applied
-
-`/posts?orderByTitle` – no scope will be applied
-
-#### Type
-
-This option allows to cast a type of a parameter value before it will passed to a scope.
-
-In the example from [Usage](#usage-with-models) section, we can tell ScopeAplicator to cast `author_id` value to `int` before this value will be passed to `userId` scope. 
-
-When type is set to `bool` or `boolean`, only `1` and `true` will be converted to `true`. Everything else is considered to be `false`.
-
-If `type` is set to something different than `bool` or `boolean`, `settype` php function will be called.
-
-Examples:
-
-```php
-public $scopes = [
-    'userId' => [
-        'alias' => 'author_id',
-        'type' => 'int'
-    ],
-    'new' => [
-        'type' => 'bool'
-    ]
-];
-```
-
-`/posts?author_id=123sometext555` – a `userId` scope will be applied with integer `123` as an argument
-
-`/posts?new=true` – a `new` scope will be applied with boolean `true` as its argument  
-
-`/posts?new=yes` – a `new` scope will be called with boolean `false` as its argument  
-
-#### Default
-
-When this option is set, a scope will be applied on every single request, even when there are no query parameters in URL matching a scope name or alias.
-
-Examples:
-
-```php
-public $scopes = [
-    'userId' => [
-        'alias' => 'author_id',
-        'default' => 5
-    ]
-];
-```
-
-`/posts?author_id=1` - a `userId` scope will be applied with `1` as an argument  
-
-`/posts` - a `userId` scope will be applied with `5` as an argument
-
-#### Allow Empty
-
-`allowEmpty` is used when an empty string should be passed to a scope as an argument. This option is set to `false` by default, so the empty string *won't* be passed to a scope.
-
-Examples:
-
-```php
-public $scopes = [
-    'userId' => [
-        'alias' => 'author_id',
-        'allowEmpty' => true
-    ]
-];
-```
-
-`/posts?author_id` – a `userId` scope will be applied with `''` (empty string) as an argument.
-
-> Please note that when `allowEmpty` is set to `false` (what is a default behavior), you always have to provide a default value for the scope argument (see an example from the [Usage](#usage-with-models) section where the `$param` argument of the `userId` scope has a default value set to `0`). Otherwise, the "Missing argument" exception will be thrown when `/posts?author_id` route is being hit.
-
-> Also note that when `allowEmpty` is set to `true`, a default value of a scope argument will be ignored and an empty string will be passed instead.
-
-
-#### Keys (experimental)
-
-Keys are used when a scope accepts multiple arguments.
-
-Example:
-
-```php
-public $scopes = [
-    'createdAt' => [
-        'alias' => 'created_at',
-        'keys' => ['from', 'to']
-    ]
-];
-```
-
-`/posts?created_at[from]=000-00-00&created_at[to]=2014-07-23` – a `createdAt` scope will be applied with `'0000-00-00'` as a first argument and `'2014-07-23'` as a second
-
-> Please note that I don't recommend using this right now as it's an experimental feature. Create two separate scopes instead (`createdAtFrom` and `createAtTo`) until this feature is marked as "stable".
+`alias` is only one of the many available scope configuration options. These are described in ScopeApplicator's [documentation](https://github.com/mobileka/scope-applicator#configuration-options).
 
 ## A better usage scenario (with Repositories)
 
@@ -331,18 +213,6 @@ class BaseRepository extends Repository
 Pay closer attention to `all` method. Now it accepts an array of scopes (the same array we were passing to `Model::handleScopes()`).
 
 Instead of directly calling `all` on our DataProvider, we now use `applyScopes()` method which accepts a `DataProvider` instance as a first argument and a scope configuration array as a second.
-
-## Other ways to use this trait
-
-As described above, the main usage scenario of ScopeApplicatior is, well, applying scopes for data filtering purposes.
-
-But all this trait does is just parses URL query parameters and calls methods of a class which is provided as a first argument of `applyScopes` method. In fact, it's possible to change the way it behaves: for example, it can call methods returned by a database query or an API call.
-
-To do this, you just have to override the `getInputManager` method of a class ScopeApplicator is attached to and return an instance of a custom class which implements the `Mobileka\ScopeApplicator\InputManagerInterface`. An example of a such class is `Mobileka\ScopeApplicator\InputManagers\LaravelInputManager`.
-
-## Credits
-
-Scope Applicator is inspired by [has_scope](https://github.com/plataformatec/has_scope) Ruby gem. 
 
 ## Contributing
 
