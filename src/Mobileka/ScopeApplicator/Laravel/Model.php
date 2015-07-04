@@ -1,4 +1,6 @@
-<?php namespace Mobileka\ScopeApplicator\Laravel;
+<?php
+
+namespace Mobileka\ScopeApplicator\Laravel;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Mobileka\ScopeApplicator\ScopeApplicator;
