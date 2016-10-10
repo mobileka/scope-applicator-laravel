@@ -28,7 +28,7 @@ ScopeApplicator is an easy and logical way to achieve something like this:
 
 ## Requirements
 
-Laravel 5.1.x
+Laravel ~5.1
 
 ## Installation
 
